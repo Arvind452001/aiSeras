@@ -1,6 +1,3 @@
-
-
-
 // "use client"
 
 // import { useState } from "react"
@@ -324,87 +321,94 @@
 
 // export default CustomizeAvtar
 
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { uploadUserImage, createUserAvatar } from "../utils/mediaApi"
+import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { uploadUserImage, createUserAvatar } from "../utils/mediaApi";
 
 // 🔹 Dummy images
-import cartoonDummy from "../assets/images/select1.png"
-import cloneDummy from "../assets/images/select2.png"
-import imageDummy from "../assets/images/select3.png"
+import cartoonDummy from "../assets/images/select1.png";
+import cloneDummy from "../assets/images/select2.png";
+import imageDummy from "../assets/images/select3.png";
 
 // Avatar types + mapping to API style
 const avatarTypes = [
-  { key: "cartoon", label: "Cartoon Avatar", dummy: cartoonDummy, style: "cartoon" },
+  {
+    key: "cartoon",
+    label: "Cartoon Avatar",
+    dummy: cartoonDummy,
+    style: "cartoon",
+  },
   { key: "clone", label: "Clone Avatar", dummy: cloneDummy, style: "clone" },
   { key: "image", label: "Image Avatar", dummy: imageDummy, style: "original" },
-]
+];
 
 export default function CustomizeAvatar() {
-  const navigate = useNavigate()
-  const fileInputRef = useRef(null)
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-  const [selectedType, setSelectedType] = useState(null)
-  const [file, setFile] = useState(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [selectedType, setSelectedType] = useState(null);
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [previewMap, setPreviewMap] = useState(() =>
     avatarTypes.reduce((acc, item) => {
-      acc[item.key] = item.dummy
-      return acc
+      acc[item.key] = item.dummy;
+      return acc;
     }, {})
-  )
+  );
 
   // 🔹 Avatar card click
   function handleAvatarClick(type) {
-    if (loading) return
-    setSelectedType(type)
-    fileInputRef.current.click()
+    if (loading) return;
+    setSelectedType(type);
+    fileInputRef.current.click();
   }
 
   // 🔹 File change
   function handleFileChange(e) {
-    const f = e.target.files?.[0]
-    if (!f || !selectedType) return
-   if (f.size > 1 * 1024 * 1024) {
-    setError("Image size must be less than 1 MB")
-    return
-  }
-    setFile(f)
+    const f = e.target.files?.[0];
+    if (!f || !selectedType) return;
+    if (f.size > 1 * 1024 * 1024) {
+      setError("Image size must be less than 1 MB");
+      return;
+    }
+    setFile(f);
     setPreviewMap((prev) => ({
       ...prev,
       [selectedType]: URL.createObjectURL(f),
-    }))
+    }));
   }
 
   // 🔹 Create avatar API call
   async function handleCreateAvatar() {
-    if (!file || !selectedType) return
+    if (!file || !selectedType) return;
 
     try {
-      setLoading(true)
-      setError("")
+      setLoading(true);
+      setError("");
 
       // 1️⃣ Upload image
-      const uploadRes = await uploadUserImage(file)
-      console.log("uploadUserImage Error",uploadRes)
-      if (!uploadRes?.success) throw new Error("Upload failed")
+      const uploadRes = await uploadUserImage(file);
+      console.log("uploadUserImage Error", uploadRes);
+      if (!uploadRes?.success) throw new Error("Upload failed");
 
       // 2️⃣ Map selected type to API style
-      const selectedAvatar = avatarTypes.find((a) => a.key === selectedType)
-      const style = selectedAvatar?.style || "originalll"
+      const selectedAvatar = avatarTypes.find((a) => a.key === selectedType);
+      const style = selectedAvatar?.style || "originalll";
 
       // 3️⃣ Create avatar
       const createRes = await createUserAvatar(uploadRes.image_url, {
         style,
         name: `${selectedAvatar.label} - My Avatar`,
         description: `Avatar created in ${style} style`,
-      })
-      console.log("createUserAvatar Error",createRes)
-      if (!createRes?.success) throw new Error("Avatar creation failed")
+      });
+      console.log("createUserAvatar img", createRes.image_url);
+      localStorage.setItem("createdAvatarImageUrl", createRes.image_url);
+
+      if (!createRes?.success) throw new Error("Avatar creation failed");
 
       // 4️⃣ Navigate to final page
       navigate("/final", {
@@ -413,10 +417,10 @@ export default function CustomizeAvatar() {
           avatarId: createRes.avatar_id,
           type: selectedType,
         },
-      })
+      });
     } catch (err) {
-      setError(err.message || "Something went wrong")
-      setLoading(false)
+      setError(err.message || "Something went wrong");
+      setLoading(false);
     }
   }
 
@@ -521,27 +525,69 @@ export default function CustomizeAvatar() {
 
         {/* Button */}
         <div style={{ textAlign: "center" }}>
-         <button
-  onClick={handleCreateAvatar}
-  disabled={!file || loading}
-  style={{
-    padding: "12px 60px", // X-axis length increase
-    marginTop: "20px",
-    borderRadius: 22,
-    background: "linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%)", // purple → blue
-    border: "none",
-    fontWeight: 600,
-    fontSize: 14,
-    color: "#fff",
-    cursor: !file || loading ? "not-allowed" : "pointer",
-    opacity: !file || loading ? 0.6 : 1,
-    transition: "transform 0.2s ease",
-  }}
->
-  {loading ? "Creating Avatar..." : "Create Avatar"}
-</button>
+          <button
+            onClick={handleCreateAvatar}
+            disabled={!file || loading}
+            style={{
+              padding: "12px 50px",
+              marginTop: "20px",
+              borderRadius: 22,
+              background: "linear-gradient(90deg, #8e2de2 0%, #4a00e0 100%)",
+              border: "none",
+              fontWeight: 600,
+              fontSize: 14,
+              color: "#fff",
+              cursor: !file || loading ? "not-allowed" : "pointer",
+              opacity: !file || loading ? 0.6 : 1,
+              position: "relative", // <-- allow spinner to position absolutely
+              display: "inline-block",
+            }}
+          >
+            {/* Spinner */}
+            {loading && (
+              <span
+                style={{
+                  width: 16,
+                  height: 16,
+                  border: "2px solid #fff",
+                  borderTop: "2px solid transparent",
+                  borderRadius: "50%",
+                  display: "inline-block",
+                  animation: "spin 1s linear infinite",
+                  position: "absolute", // center inside button
+                  left: "16px", // distance from left edge
+                  top: "35%",
+                  transform: "translateY(-50%)",
+                }}
+              />
+            )}
 
+            {/* Text */}
+            <span style={{ visibility: loading ? "visible" : "visible" }}>
+              {loading ? "Creating Avatar..." : "Create Avatar"}
+            </span>
+          </button>
         </div>
+
+        {/* Spinner keyframes */}
+        <style>
+          {`
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  `}
+        </style>
+
+        {/* Spinner keyframes (add once globally or in a <style> tag) */}
+        <style>
+          {`
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`}
+        </style>
 
         {error && (
           <p
@@ -557,5 +603,5 @@ export default function CustomizeAvatar() {
         )}
       </div>
     </div>
-  )
+  );
 }

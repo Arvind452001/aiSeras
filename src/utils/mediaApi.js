@@ -33,7 +33,7 @@ export async function uploadUserImage(file) {
     },
     withCredentials: false,
   })
-  console.log(res.data)
+  // console.log("responce",res.data)
   return res.data // expects { success, image_url, ... }
 }
 

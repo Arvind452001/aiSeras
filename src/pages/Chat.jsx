@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import logoSrc from "../assets/assets/img/logo/logo.png"
 import { sendChatMessage, checkVideoStatus } from "../utils/mediaApi"
 import chatbotAvatar from "../images/chatbot.png"
+import Header1 from "../components/Header1";
 // floating widget, and scoped styles. Keeps all effects local to this page only.
 
 export default function Chat() {
@@ -212,7 +213,8 @@ export default function Chat() {
   return (
     <div className="chatjsx-override">
       {/* Header override (scoped to chat page, non-fixed to avoid affecting layout on other pages) */}
-      <section className="header-section">
+      <Header1/>
+      {/* <section className="header-section">
         <div className="header-testting-wrap">
           <header className="header">
             <div className="container-fluid">
@@ -252,7 +254,7 @@ export default function Chat() {
             </div>
           </header>
         </div>
-      </section>
+      </section> */}
 
       {/* Main section */}
       <section className="pt-120 pb-120 mt-5 mb-5">

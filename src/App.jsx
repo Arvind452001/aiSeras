@@ -14,6 +14,10 @@ import FinalAvtar from "./pages/FinalAvtar"
 import AvtarSuccess from "./pages/AvtarSuccess"
 import Chat from "./pages/Chat"
 import History from "./pages/history"
+import AddVoice from "./pages/AddVoice"
+import VoiceRecordingStarted from "./pages/VoiceRecordingStarted"
+import VoiceRecordingCompleted from "./pages/VoiceRecordingCompleted"
+import AddCredit from "./pages/AddCredit"
 
 function App() {
   return (
@@ -51,6 +55,10 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/customize" element={<CustomizeAvtar />} />
         <Route path="/final" element={<FinalAvtar />} />
+        <Route path="/addVoice" element={<AddVoice />} />
+         <Route path="/voice-recording-started" element={<VoiceRecordingStarted />} />
+          <Route path="/voice-recording-completed" element={<VoiceRecordingCompleted />} />
+          <Route path="/AddCredit" element={<AddCredit />} />
         <Route path="/chat" element={<Chat />} />
         <Route path="/avtarsucess" element={<AvtarSuccess />} />
       </Routes>
