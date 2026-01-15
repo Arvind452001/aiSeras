@@ -1,259 +1,490 @@
-"use client"
+// "use client";
 
-import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
-import Header from "../components/Header"
-import Footer from "../components/Footer"
-import { fetchUserHistory } from "../utils/mediaApi"
-import img2 from '../assets/images/happy-face.png'
-import chatbotIcon from "../images/chatbot.png"  
+// import { useEffect, useState } from "react";
+// import { Link } from "react-router-dom";
+// import Header1 from "../components/Header1";
+// import Footer from "../components/Footer";
+// import { fetchUserHistory } from "../utils/mediaApi";
+// import img2 from "../assets/images/happy-face.png";
+
+// const History = () => {
+//   const [user, setUser] = useState(null);
+//   const [ops, setOps] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState("");
+//   const [total, setTotal] = useState(0);
+//   const [limit] = useState(50);
+//   const [offset, setOffset] = useState(0);
+
+//   useEffect(() => {
+//     const storedUser = localStorage.getItem("user");
+//     if (storedUser) setUser(JSON.parse(storedUser));
+//   }, []);
+
+//   const loadHistory = async (nextOffset = 0) => {
+//     if (!user?.id) return;
+
+//     try {
+//       setLoading(true);
+//       setError("");
+
+//       const data = await fetchUserHistory({
+//         user_id: user.id,
+//         limit,
+//         offset: nextOffset,
+//       });
+
+//       setOps(
+//         nextOffset === 0
+//           ? data?.operations || []
+//           : (prev) => [...prev, ...(data?.operations || [])]
+//       );
+
+//       setTotal(data?.total_count || 0);
+//       setOffset(nextOffset);
+//     } catch {
+//       setError("Failed to load history. Please try again.");
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (user?.id) loadHistory(0);
+//   }, [user]);
+
+//   const canLoadMore = ops.length < total;
+
+//   return (
+//     <>
+//       <Header1 />
+
+//       <main className="text-white">
+//         <section className="py-5">
+//           <div className="container mt-4">
+
+//             {/* Greeting */}
+//             <div className="mb-4">
+//               <h5 className="text-white">Hello,</h5>
+//               <h2 className="fw-semibold d-flex align-items-center gap-3 text-white">
+//                 {user?.full_name || "Guest"}
+//                 <img src={img2} alt="hello" width={40} />
+//               </h2>
+//               <p className="text-white">
+//                 Here are your generated assets. View or download them anytime.
+//               </p>
+//             </div>
+
+//             {error && <div className="text-danger mb-3">{error}</div>}
+
+//             {/* Table */}
+//             <div className="table-responsive">
+//               <table className="table  table-borderless align-middle mb-0">
+//                 <thead className="border-bottom border-secondary">
+//                   <tr className="text-white">
+//                     <th>Preview</th>
+//                     <th>Title</th>
+//                     <th>Type</th>
+//                     <th>Status</th>
+//                     <th>Created</th>
+//                     <th className="text-center">Action</th>
+//                   </tr>
+//                 </thead>
+
+//                 <tbody>
+//                   {loading && ops.length === 0 ? (
+//                     <tr>
+//                       <td colSpan="6" className="text-white py-4">
+//                         Loading...
+//                       </td>
+//                     </tr>
+//                   ) : ops.length === 0 ? (
+//                     <tr>
+//                       <td colSpan="6" className="text-white py-4">
+//                         No items found.
+//                       </td>
+//                     </tr>
+//                   ) : (
+//                     ops.map((op) => {
+//                       const meta = op?.metadata || {};
+//                       const url = meta?.url || meta?.image_url || "";
+//                       const thumb =
+//                         meta?.thumbnail_url || meta?.image_url || "";
+
+//                       const isComplete =
+//                         meta?.video_status === 3 ||
+//                         meta?.is_ready === true ||
+//                         /completed/i.test(
+//                           meta?.status_text || op?.status_text || ""
+//                         );
+
+//                       const statusText =
+//                         meta?.status_text ||
+//                         op?.status_text ||
+//                         (isComplete ? "completed" : "processing");
+
+//                       return (
+//                         <tr key={op.id} className="border-bottom border-secondary">
+//                           {/* Preview */}
+//                           <td>
+//                             {thumb ? (
+//                               <img
+//                                 src={thumb}
+//                                 alt="thumb"
+//                                 width={72}
+//                                 height={72}
+//                                 className="rounded border border-secondary object-fit-cover"
+//                               />
+//                             ) : (
+//                               <div
+//                                 className="d-flex align-items-center justify-content-center rounded border border-secondary text-white"
+//                                 style={{ width: 72, height: 72 }}
+//                               >
+//                                 N/A
+//                               </div>
+//                             )}
+//                           </td>
+
+//                           {/* Title */}
+//                           <td>
+//                             <div className="fw-semibold text-white">
+//                               {op?.title || "Generated"}
+//                             </div>
+//                             <div className="small text-white">
+//                               {op?.description}
+//                             </div>
+//                           </td>
+
+//                           {/* Type */}
+//                           <td className="text-white">
+//                             {meta?.media_kind || "-"}
+//                           </td>
+
+//                           {/* Status (keep colored) */}
+//                           <td>
+//                             <span
+//                               className={`badge rounded-pill px-3 py-2 ${
+//                                 /fail|error/i.test(statusText)
+//                                   ? "bg-danger-subtle text-danger border border-danger"
+//                                   : isComplete
+//                                   ? "bg-success-subtle text-success border border-success"
+//                                   : "bg-warning-subtle text-warning border border-warning"
+//                               }`}
+//                             >
+//                               {statusText}
+//                             </span>
+//                           </td>
+
+//                           {/* Created */}
+//                           <td className="text-white">
+//                             {op?.created_at
+//                               ? new Date(op.created_at).toLocaleString()
+//                               : "-"}
+//                           </td>
+
+//                           {/* Action */}
+//                           <td>
+//                             <div
+//                               className="d-flex flex-column align-items-center justify-content-center gap-2"
+//                               style={{ minHeight: 72 }}
+//                             >
+//                               <a
+//                                 href={url || "#"}
+//                                 target="_blank"
+//                                 rel="noreferrer"
+//                                 className="btn btn-outline-light btn-sm w-100"
+//                                 style={{ maxWidth: 120 }}
+//                               >
+//                                 View
+//                               </a>
+//                               <a
+//                                 href={url || "#"}
+//                                 download
+//                                 className="btn btn-outline-light btn-sm w-100"
+//                                 style={{ maxWidth: 120 }}
+//                               >
+//                                 Download
+//                               </a>
+//                             </div>
+//                           </td>
+//                         </tr>
+//                       );
+//                     })
+//                   )}
+//                 </tbody>
+//               </table>
+//             </div>
+
+//             {/* Footer actions */}
+//             {ops.length > 0 && (
+//               <div className="mt-4 d-flex flex-wrap gap-3">
+//                 <button
+//                   onClick={() => loadHistory(0)}
+//                   disabled={loading}
+//                   className="btn btn-outline-light"
+//                 >
+//                   Refresh
+//                 </button>
+
+//                 {canLoadMore && (
+//                   <button
+//                     onClick={() => loadHistory(offset + limit)}
+//                     disabled={loading}
+//                     className="btn btn-outline-light"
+//                   >
+//                     Load more
+//                   </button>
+//                 )}
+
+//                 <Link
+//                   to="/face-recognition"
+//                   className="btn btn-outline-light"
+//                 >
+//                   Let’s Create One
+//                 </Link>
+//               </div>
+//             )}
+//           </div>
+//         </section>
+//       </main>
+
+//       <Footer />
+//     </>
+//   );
+// };
+
+// export default History;
+
+
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import Header1 from "../components/Header1";
+import Footer from "../components/Footer";
+import { fetchUserHistory } from "../utils/mediaApi";
+import img2 from "../assets/images/happy-face.png";
+
 const History = () => {
-  const [ops, setOps] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const [total, setTotal] = useState(0)
-  const [limit] = useState(50)
-  const [offset, setOffset] = useState(0)
-
-  const userId = useMemo(() => {
-    try {
-      const storedId = localStorage.getItem("user_id")
-      if (storedId) {
-        const parsed = Number(storedId)
-        return Number.isNaN(parsed) ? storedId : parsed
-      }
-      const u = localStorage.getItem("user")
-      return u ? JSON.parse(u)?.id || 2 : 2
-    } catch {
-      return 2
-    }
-  }, [])
-
-  async function loadHistory(nextOffset = 0) {
-    try {
-      setLoading(true)
-      setError("")
-      const data = await fetchUserHistory({ user_id: userId, limit, offset: nextOffset })
-      if (nextOffset === 0) {
-        setOps(data?.operations || [])
-      } else {
-        setOps((prev) => [...prev, ...(data?.operations || [])])
-      }
-      setTotal(data?.total_count || 0)
-      setOffset(nextOffset)
-    } catch (e) {
-      console.error("[v0] history load error:", e)
-      setError("Failed to load history. Please try again.")
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [user, setUser] = useState(null);
+  const [ops, setOps] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(50);
+  const [offset, setOffset] = useState(0);
 
   useEffect(() => {
-    loadHistory(0)
-  }, [userId])
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) setUser(JSON.parse(storedUser));
+  }, []);
 
-  const canLoadMore = ops.length < total
+  const loadHistory = async (nextOffset = 0) => {
+    if (!user?.id) return;
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const data = await fetchUserHistory({
+        user_id: user.id,
+        limit,
+        offset: nextOffset,
+      });
+
+      setOps(nextOffset === 0 ? data?.operations || [] : prev => [...prev, ...(data?.operations || [])]);
+      setTotal(data?.total_count || 0);
+      setOffset(nextOffset);
+    } catch {
+      setError("Failed to load history. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.id) loadHistory(0);
+  }, [user]);
+
+  const canLoadMore = ops.length < total;
 
   return (
     <>
-      <style>{`
-        .history-page .greeting { font-size: 18px; color: #ccc; }
-        .history-page table { width: 100%; border-collapse: collapse; margin-top: 30px; }
-        .history-page th, .history-page td { text-align: left; padding: 16px; border-bottom: 1px solid #1e1e1e; vertical-align: middle; }
-        .history-page th { color: #ccc; }
-        .status-badge { font-weight: 600; padding: 4px 10px; border-radius: 999px; font-size: 12px; display: inline-block; }
-        .status-complete { color: #10b981; background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.25); }
-        .status-pending { color: #f59e0b; background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.25); }
-        .status-failed  { color: #ef4444; background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.25); }
-        .actions { display: flex; align-items: center; gap: 10px; }
-        .btn-ghost { background: transparent; border: 1px solid #2b2b2b; color: #ddd; padding: 6px 10px; border-radius: 6px; text-decoration: none; font-size: 14px; }
-        .btn-ghost[disabled] { opacity: .6; cursor: not-allowed; }
-        .thumb { width: 72px; height: 72px; border-radius: 8px; object-fit: cover; border: 1px solid #2b2b2b; background: #111; }
-        .thumb-audio { width: 72px; height: 72px; border-radius: 8px; border: 1px solid #2b2b2b; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 12px; background:#111; }
-        .thumb-video { width: 96px; height: 64px; border-radius: 6px; border: 1px solid #2b2b2b; object-fit: cover; background:#000; }
-      `}</style>
+      <Header1 />
 
-      <Header />
+      <main className="text-white ">
+        <section className="py-24">
+          <div className="container mx-auto mt-4">
+            {/* Greeting */}
+            <div className="mb-4">
+              <h4 className="text-lg text-white">Hello,</h4>
+              <h2 className="text-3xl font-semibold flex items-center gap-3 text-white">
+                {user?.full_name || "Guest"}
+                <img src={img2} alt="hello" className="w-10" />
+              </h2>
+              <p className="text-gray-400 mt-1">
+                Here are your generated assets. View or download them anytime.
+              </p>
+            </div>
 
-      <main className="history-page">
-        <section className="pt-120 pb-120 mt-5 mb-5">
-          <div className="container">
-            <div className="row align-items-center pt-80 justify-content-center">
-              <div className="col-lg-12 mb-4">
-                <h4 className="text-white mb-1">Hello,</h4>
-               <h2 className="text-white">
-                           Richard <img src={`${img2}`} style={{ width: 60 }} />
-                         </h2>
-                <p className="greeting">Here are your generated assets. View or download them anytime.</p>
-              </div>
+            {error && <div className="text-red-500 mb-4">{error}</div>}
 
-              <div className="col-lg-12">
-                {error && <div style={{ color: "#ef4444", marginBottom: 12 }}>{error}</div>}
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="text-gray-300 border-b border-neutral-800">
+                    {["Preview", "Title", "Type", "Status", "Created", "Action"].map(h => (
+                      <th key={h} className="p-4 text-left font-medium">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
 
-                <table aria-label="Generated media history">
-                  <thead>
+                <tbody>
+                  {loading && ops.length === 0 ? (
                     <tr>
-                      <th scope="col">Preview</th>
-                      <th scope="col">Title</th>
-                      <th scope="col">Type</th>
-                      <th scope="col">Status</th>
-                      <th scope="col">Created</th>
-                      <th scope="col">Action</th>
+                      <td colSpan="6" className="p-6 text-gray-400">
+                        Loading...
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {loading && ops.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" style={{ color: "#aaa" }}>
-                          Loading...
-                        </td>
-                      </tr>
-                    ) : ops.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" style={{ color: "#aaa" }}>
-                          No items found.
-                        </td>
-                      </tr>
-                    ) : (
-                      ops.map((op) => {
-                        const meta = op?.metadata || {}
-                        const mediaKind = meta?.media_kind || (op?.operation_type === "avatar_created" ? "image" : "")
-                        const isComplete =
-                          meta?.video_status === 3 ||
-                          meta?.is_ready === true ||
-                          /completed/i.test(meta?.status_text || op?.status_text || "")
-                        const statusText =
-                          meta?.status_text || op?.status_text || (isComplete ? "completed" : "processing")
-                        const created = op?.created_at ? new Date(op.created_at).toLocaleString() : "-"
-                        const url = meta?.url || meta?.image_url || ""
-                        const thumbCandidate =
-                          meta?.thumbnail_url ||
-                          meta?.image_url ||
-                          (op?.operation_type === "avatar_created" ? meta?.image_url : "") ||
-                          ""
-                        const hasThumbImage = Boolean(thumbCandidate)
+                  ) : ops.length === 0 ? (
+                    <tr>
+                      <td colSpan="6" className="p-6 text-gray-400">
+                        No items found.
+                      </td>
+                    </tr>
+                  ) : (
+                    ops.map(op => {
+                      const meta = op?.metadata || {};
+                      const url = meta?.url || meta?.image_url || "";
+                      const thumb = meta?.thumbnail_url || meta?.image_url || "";
 
-                        return (
-                          <tr key={op?.id}>
-                            <td>
-                              {mediaKind === "image" && (thumbCandidate || url) ? (
-                                <img
-                                  src={thumbCandidate || url || "/placeholder.svg"}
-                                  alt={op?.title || "Image"}
-                                  className="thumb"
-                                />
-                              ) : mediaKind === "video" ? (
-                                hasThumbImage ? (
-                                  <img
-                                    src={thumbCandidate || "/placeholder.svg"}
-                                    alt={op?.title || "Video thumbnail"}
-                                    className="thumb"
-                                  />
-                                ) : url ? (
-                                  <video
-                                    className="thumb-video"
-                                    muted
-                                    loop
-                                    playsInline
-                                    onMouseOver={(e) => e.currentTarget.play()}
-                                    onMouseOut={(e) => e.currentTarget.pause()}
-                                    src={url}
-                                  />
-                                ) : (
-                                  <div className="thumb-audio">N/A</div>
-                                )
-                              ) : mediaKind === "audio" ? (
-                                <div className="thumb-audio">AUDIO</div>
-                              ) : (
-                                <div className="thumb-audio">N/A</div>
-                              )}
-                            </td>
-                            <td>
-                              <div style={{ fontWeight: 600 }}>{op?.title || "Generated"}</div>
-                              <small style={{ color: "#aaa" }}>{op?.description || ""}</small>
-                            </td>
-                            <td style={{ textTransform: "capitalize" }}>{mediaKind || op?.operation_type || "-"}</td>
-                            <td>
-                              <span
-                                className={`status-badge ${
+                      const isComplete =
+                        meta?.video_status === 3 ||
+                        meta?.is_ready === true ||
+                        /completed/i.test(meta?.status_text || op?.status_text || "");
+
+                      const statusText =
+                        meta?.status_text ||
+                        op?.status_text ||
+                        (isComplete ? "completed" : "processing");
+
+                      return (
+                        <tr
+                          key={op.id}
+                          className="border-b border-neutral-800 align-middle"
+                        >
+                          {/* Preview */}
+                          <td className="p-4">
+                            {thumb ? (
+                              <img
+                                src={thumb}
+                                alt="thumb"
+                                className="w-18 h-18 rounded-lg object-cover border border-neutral-800 bg-neutral-900"
+                              />
+                            ) : (
+                              <div className="w-18 h-18 flex items-center justify-center rounded-lg border border-neutral-800 text-gray-400">
+                                N/A
+                              </div>
+                            )}
+                          </td>
+
+                          {/* Title */}
+                          <td className="p-4">
+                            <div className="font-semibold">{op?.title || "Generated"}</div>
+                            <div className="text-sm text-gray-400">{op?.description}</div>
+                          </td>
+
+                          {/* Type */}
+                          <td className="p-4">{meta?.media_kind || "-"}</td>
+
+                          {/* Status */}
+                          <td className="p-4">
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold border
+                                ${
                                   /fail|error/i.test(statusText)
-                                    ? "status-failed"
+                                    ? "text-red-400 border-red-500/30 bg-red-500/10"
                                     : isComplete
-                                      ? "status-complete"
-                                      : "status-pending"
+                                    ? "text-emerald-400 border-emerald-500/30 bg-emerald-500/10"
+                                    : "text-amber-400 border-amber-500/30 bg-amber-500/10"
                                 }`}
-                              >
-                                {statusText}
-                              </span>
-                            </td>
-                            <td>{created}</td>
-                            <td className="actions">
+                            >
+                              {statusText}
+                            </span>
+                          </td>
+
+                          {/* Created */}
+                          <td className="p-4">
+                            {op?.created_at
+                              ? new Date(op.created_at).toLocaleString()
+                              : "-"}
+                          </td>
+
+                          {/* Action */}
+                          <td className="p-4">
+                            <div className="flex flex-col items-center justify-center gap-2 min-h-[72px]">
                               <a
                                 href={url || "#"}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="btn-ghost"
-                                aria-disabled={!url}
-                                onClick={(e) => {
-                                  if (!url) e.preventDefault()
-                                }}
+                                className="w-28 text-center border border-neutral-700 rounded-md px-3 py-1.5 text-sm hover:bg-neutral-800"
                               >
                                 View
                               </a>
                               <a
                                 href={url || "#"}
                                 download
-                                className="btn-ghost"
-                                aria-disabled={!url}
-                                onClick={(e) => {
-                                  if (!url) e.preventDefault()
-                                }}
+                                className="w-28 text-center border border-neutral-700 rounded-md px-3 py-1.5 text-sm hover:bg-neutral-800"
                               >
                                 Download
                               </a>
-                            </td>
-                          </tr>
-                        )
-                      })
-                    )}
-                  </tbody>
-                </table>
-
-                {ops.length > 0 && (
-                  <div className="mt-4" style={{ display: "flex", gap: 12 }}>
-                    <button
-                      className="btn-ghost"
-                      onClick={() => loadHistory(0)}
-                      disabled={loading}
-                      aria-label="Refresh history"
-                    >
-                      {loading ? "Refreshing..." : "Refresh"}
-                    </button>
-                    {canLoadMore && (
-                      <button
-                        className="btn-ghost"
-                        onClick={() => loadHistory(offset + limit)}
-                        disabled={loading}
-                        aria-label="Load more"
-                      >
-                        {loading ? "Loading..." : "Load more"}
-                      </button>
-                    )}
-                    <Link to="/face-recognition" className="btn-ghost" aria-label="Create new">
-                      Let’s Create One
-                    </Link>
-                  </div>
-                )}
-              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
+
+            {/* Footer actions */}
+            {ops.length > 0 && (
+              <div className="mt-6 flex flex-wrap gap-3">
+                <button
+                  onClick={() => loadHistory(0)}
+                  disabled={loading}
+                  className="border border-neutral-700 px-4 py-2 rounded-md hover:bg-neutral-800"
+                >
+                  Refresh
+                </button>
+
+                {canLoadMore && (
+                  <button
+                    onClick={() => loadHistory(offset + limit)}
+                    disabled={loading}
+                    className="border border-neutral-700 px-4 py-2 rounded-md hover:bg-neutral-800"
+                  >
+                    Load more
+                  </button>
+                )}
+
+                <Link
+                  to="/face-recognition"
+                  className="border border-neutral-700 px-4 py-2 rounded-md hover:bg-neutral-800"
+                >
+                  Let’s Create One
+                </Link>
+              </div>
+            )}
           </div>
         </section>
       </main>
 
       <Footer />
     </>
-  )
-}
+  );
+};
 
-export default History
+export default History;

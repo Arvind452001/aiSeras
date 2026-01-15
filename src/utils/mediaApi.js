@@ -113,6 +113,7 @@ export async function createUserAvatar(imageUrl, meta = {}) {
  * Uses dynamic user_id
  */
 export async function sendChatMessage({ avatar_id, message, voice_type = "default_female" }) {
+  
   const url = `${BASE}/chat`
   const idStr = String(avatar_id) // backend expects string
   const body = {
@@ -121,12 +122,13 @@ export async function sendChatMessage({ avatar_id, message, voice_type = "defaul
     message,
     voice_type,
   }
-  console.log("[v0] sendChatMessage payload:", body, { typeOfAvatarId: typeof body.avatar_id })
+
+ // console.log("[v0] sendChatMessage payload:", body, { typeOfAvatarId: typeof body.avatar_id })
   const res = await axios.post(url, body, {
     headers: { "Content-Type": "application/json", Accept: "application/json" },
     withCredentials: false,
   })
-  console.log("[v0] sendChatMessage response:", res?.data)
+  // console.log("[v0] sendChatMessage response:", res?.data)
   return res.data
 }
 

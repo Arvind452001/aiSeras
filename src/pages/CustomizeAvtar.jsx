@@ -392,7 +392,7 @@ export default function CustomizeAvatar() {
 
       // 1️⃣ Upload image
       const uploadRes = await uploadUserImage(file);
-      console.log("uploadUserImage Error", uploadRes);
+      // console.log("uploadUserImage Error", uploadRes);
       if (!uploadRes?.success) throw new Error("Upload failed");
 
       // 2️⃣ Map selected type to API style
@@ -405,13 +405,15 @@ export default function CustomizeAvatar() {
         name: `${selectedAvatar.label} - My Avatar`,
         description: `Avatar created in ${style} style`,
       });
-      console.log("createUserAvatar img", createRes.image_url);
+      // console.log("createUserAvatar img", createRes);
       localStorage.setItem("createdAvatarImageUrl", createRes.image_url);
+        localStorage.setItem("createdAvatarId", createRes.avatar_id);
 
       if (!createRes?.success) throw new Error("Avatar creation failed");
 
+
       // 4️⃣ Navigate to final page
-      navigate("/final", {
+      navigate("/addVoice", {
         state: {
           imageUrl: createRes.image_url,
           avatarId: createRes.avatar_id,

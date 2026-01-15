@@ -86,9 +86,10 @@ export default function Chat() {
         message: content,
         voice_type: voiceType,
       }
-      console.log("[v0] Chat.jsx sending payload:", payload, { typeOfAvatarId: typeof payload.avatar_id })
+      // console.log("Chat.jsx sending payload:", payload, { typeOfAvatarId: typeof payload.avatar_id })
       const data = await sendChatMessage(payload)
-      console.log("[v0] Chat.jsx received response:", data)
+
+      // console.log("[v0] Chat.jsx received response:", data)
 
       const botMsg = {
         role: "bot",
