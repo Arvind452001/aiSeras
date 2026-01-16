@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/Button";
 import Header1 from "../components/Header1";
@@ -10,29 +10,28 @@ import { Mic } from "lucide-react";
 export default function VoiceRecordingStarted() {
   const [seconds, setSeconds] = useState(0);
   const [isRecording, setIsRecording] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  console.log("isRecording", isRecording);
 
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const timerRef = useRef(null);
 
   const navigate = useNavigate();
+  const userId = 18;
 
-  // ⏱ Start timer
+  // ⏱ Timer
   const startTimer = () => {
     timerRef.current = setInterval(() => {
       setSeconds((prev) => prev + 1);
     }, 1000);
   };
 
-  // ⏹ Stop timer
   const stopTimer = () => {
     clearInterval(timerRef.current);
   };
 
-  // 🎙 Start recording ONLY on mic click
+  // 🎙 Start Recording
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -56,29 +55,79 @@ export default function VoiceRecordingStarted() {
     }
   };
 
-  // ⛔ Stop recording
-  const handleStop = () => {
+  // 🔼 Upload Voice API
+  const uploadVoice = async (audioFile) => {
+    const formData = new FormData();
+    formData.append("file", audioFile);
+
+    const url =
+      `https://www.aiseras.com/aiseras/api/upload-voice` +
+      `?user_id=${userId}` +
+      `&voice_name=original_recorded_voice` +
+      `&voice_description=User recorded voice`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer YOUR_API_TOKEN",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Voice upload failed");
+    }
+
+    return response.json(); // ✅ returns voice_id
+  };
+
+  // ⏹ Stop + Upload + Next
+  const handleNext = async () => {
     if (!mediaRecorderRef.current) return;
 
+    setLoading(true);
     stopTimer();
     setIsRecording(false);
 
-    mediaRecorderRef.current.onstop = () => {
-      const audioBlob = new Blob(audioChunksRef.current, {
-        type: "audio/webm",
-      });
+    mediaRecorderRef.current.onstop = async () => {
+      try {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
 
-      const audioFile = new File([audioBlob], "voice.webm", {
-        type: "audio/webm",
-      });
+        const audioFile = new File([audioBlob], "voice.webm", {
+          type: "audio/webm",
+        });
 
-      // ✅ Save for next page
-      window.recordedVoiceFile = audioFile;
-      // console.log("audioFile", audioFile);
-      navigate("/voice-recording-completed");
+        // 🔥 Upload
+        const response = await uploadVoice(audioFile);
+
+        const voiceId = response.voice_id;
+
+        // ✅ Save for safety (page refresh case)
+        localStorage.setItem("voice_type", voiceId);
+
+        // 👉 Next page with voice_id
+        navigate("/chat", {
+          state: { voiceId },
+        });
+
+      } catch (err) {
+        console.error(err);
+        alert("Voice upload failed");
+      } finally {
+        setLoading(false);
+      }
     };
 
     mediaRecorderRef.current.stop();
+  };
+
+  // ⏭️ Skip Upload
+  const handleSkip = () => {
+    navigate("/voice-recording-completed", {
+      state: { voiceId: null },
+    });
   };
 
   const formatTime = (secs) => {
@@ -106,12 +155,14 @@ export default function VoiceRecordingStarted() {
                 Sit Back and Relax
               </h1>
 
-              <p className="text-secondary mb-4">Let Us Capture your Voice</p>
+              <p className="text-secondary mb-4">
+                Let Us Capture your Voice
+              </p>
 
-              {/* 🎙 Mic / Timer Circle */}
+              {/* 🎙 Mic */}
               <div className="position-relative d-inline-block mb-4">
                 <div
-                  className="rounded-circle border border-4 d-flex align-items-center justify-content-center"
+                  className="rounded-circle  border-4 d-flex align-items-center justify-content-center"
                   style={{
                     width: "250px",
                     height: "250px",
@@ -132,7 +183,7 @@ export default function VoiceRecordingStarted() {
                 </div>
               </div>
 
-              {error && <p className="text-danger mb-3">{error}</p>}
+              {error && <p className="text-danger">{error}</p>}
 
               <p className="text-secondary mb-4">
                 {isRecording
@@ -140,13 +191,23 @@ export default function VoiceRecordingStarted() {
                   : "Tap the mic to start recording"}
               </p>
 
-              <Button
-                onClick={handleStop}
-                className="px-5"
-                disabled={!isRecording}
-              >
-                Stop
-              </Button>
+              {/* Buttons */}
+              <div className="d-flex justify-content-center gap-3">
+                <Button
+                  onClick={handleNext}
+                  disabled={!isRecording || loading}
+                  className="px-5"
+                >
+                  {loading ? "Uploading..." : "Next"}
+                </Button>
+
+                <Button
+                  onClick={handleSkip}
+                  className="px-5 btn-secondary"
+                >
+                  Skip
+                </Button>
+              </div>
             </div>
           </div>
         </div>

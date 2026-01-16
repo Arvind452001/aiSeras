@@ -125,10 +125,10 @@ const VerificationMail = () => {
                     Or continue with
                   </p>
                   <div className="d-flex justify-content-between">
-                    <button className="btn btn-social !flex justify-center items-center">
+                    <button className="btn btn-social flex justify-center items-center">
                       <img src={img1} alt="Google" /> Google
                     </button>
-                    <button className="btn btn-social !flex justify-center items-center">
+                    <button className="btn btn-social flex justify-center items-center">
                       <img src={img2} alt="Facebook" /> Facebook
                     </button>
                   </div>

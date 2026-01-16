@@ -30,7 +30,7 @@ export default function FinalPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0f0c29] via-[#302b63] to-[#24243e]">
+    <div className="min-h-screen bg-linear-to-b from-[#0f0c29] via-[#302b63] to-[#24243e]">
       <section className="pt-32 pb-10 relative">
         <Header1 />
 
@@ -70,7 +70,7 @@ export default function FinalPage() {
                 className="mx-auto rounded-xl"
               />
 
-              <div className="absolute top-[14%] right-0 bg-gradient-to-r from-purple-600 via-blue-600 to-purple-600 p-[1px] rounded-lg">
+              <div className="absolute top-[14%] right-0  from-purple-600 via-blue-600 to-purple-600  rounded-lg">
                 <div className="bg-[#0f0c29] px-4 py-2 rounded-lg">
                   <span className="text-white">
                     Hi, 👋 I am your customized avatar
@@ -103,7 +103,7 @@ export default function FinalPage() {
       {/* Chatbot Widget */}
       <div className="fixed bottom-20 right-5 z-50 flex flex-col items-end">
         {chatOpen && (
-          <div className="bg-[#0c0c0c] rounded-2xl w-[280px] shadow-lg shadow-purple-500/20 mb-3 overflow-hidden">
+          <div className="bg-[#0c0c0c] rounded-2xl  shadow-lg shadow-purple-500/20 mb-3 overflow-hidden">
             <div className="bg-[#1c1c2e] p-3 flex justify-between items-center">
               <span className="text-white font-semibold text-sm">
                 Your Seras Helper
@@ -113,7 +113,7 @@ export default function FinalPage() {
               </button>
             </div>
 
-            <div className="p-4 max-h-[300px] overflow-y-auto flex flex-col gap-3">
+            <div className="p-4  overflow-y-auto flex flex-col gap-3">
               {messages.map((msg, index) => (
                 <div
                   key={index}

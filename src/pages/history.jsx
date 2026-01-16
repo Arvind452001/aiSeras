@@ -423,7 +423,7 @@ const History = () => {
 
                           {/* Action */}
                           <td className="p-4">
-                            <div className="flex flex-col items-center justify-center gap-2 min-h-[72px]">
+                            <div className="flex flex-col items-center justify-center gap-2">
                               <a
                                 href={url || "#"}
                                 target="_blank"

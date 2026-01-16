@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header1 from "../components/Header1";
@@ -7,76 +9,34 @@ import { Modal } from "../components/Modal";
 import { Check } from "lucide-react";
 
 export default function VoiceRecordingCompleted() {
-  // ✅ Default = recorded (behind the scenes)
-  const [selectedVoice, setSelectedVoice] = useState("recorded");
+  // ✅ Default = male
+  const [selectedVoice, setSelectedVoice] = useState("");
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-console.log("selectedVoice",selectedVoice)
-  const createdFromStorage =
-    localStorage.getItem("createdAvatarImageUrl") || "";
 
-  // 🎙 Recorded voice from previous screen
-  const recordedVoiceFile = window.recordedVoiceFile;
-console.log("recordedVoiceFile",recordedVoiceFile)
-  const userId = 18;
+  // ---------- Voice selection handler ----------
+  const handleVoiceSelect = (voice) => {
+    setSelectedVoice(voice);
 
-  const handleConfirm = async () => {
-    try {
-      // 🔴 Agar recorded selected hai to file mandatory
-      if (selectedVoice === "recorded" && !recordedVoiceFile) {
-        alert("Recorded voice not found");
-        return;
-      }
+    // Remove stored voiceId if exists
+    localStorage.removeItem("voiceId");
 
-      setLoading(true);
-
-      const voiceName =
-        selectedVoice === "recorded" ? "recorded_voice" : selectedVoice;
-
-      const voiceDescription =
-        selectedVoice === "recorded"
-          ? "User recorded voice"
-          : `System ${selectedVoice} voice`;
-
-      const formData = new FormData();
-
-      // ✅ File sirf recorded ke case me bhejo
-      if (selectedVoice === "recorded") {
-        formData.append("file", recordedVoiceFile);
-      }
-
-      const url =
-        `https://www.aiseras.com/aiseras/api/upload-voice` +
-        `?user_id=${userId}` +
-        `&voice_name=${encodeURIComponent(voiceName)}` +
-        `&voice_description=${encodeURIComponent(voiceDescription)}`;
-
-        const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Authorization: "Bearer YOUR_API_TOKEN",
-        },
-        body: formData,
-      });
-console.log("formData",response)
-      if (!response.ok) {
-        throw new Error("Voice upload failed");
-      }
-
-      await response.json();
-
-      window.recordedVoiceFile = null;
-
-      setConfirmModalOpen(false);
-      navigate("/chat");
-    } catch (error) {
-      console.error("Upload error:", error);
-      alert("Voice upload failed. Please try again.");
-    } finally {
-      setLoading(false);
+    // Set opposite default voice type in localStorage
+    if (voice === "male") {
+      localStorage.setItem("voice_type", "default_male");
+    } else if (voice === "female") {
+      localStorage.setItem("voice_type", "default_female");
     }
+  };
+
+  const handleConfirm = () => {
+    // 🔥 Only selected voice send to chat page
+    navigate("/chat", {
+      state: {
+        selectedVoice, // "male" | "female"
+      },
+    });
   };
 
   return (
@@ -96,7 +56,9 @@ console.log("formData",response)
                 Captured Successfully
               </h1>
 
-              <p className="text-secondary mb-4">Let Us Capture your Voice</p>
+              <p className="text-secondary mb-4">
+                Select a voice type to continue
+              </p>
 
               {/* Success Indicator */}
               <div className="d-flex justify-content-center mb-4">
@@ -112,16 +74,14 @@ console.log("formData",response)
                 </div>
               </div>
 
-              <p className="text-secondary mb-4">Select a voice type. By default, your recorded voice is selected</p>
-
-              {/* ✅ Only Male/Female shown on screen */}
+              {/* Voice Selection */}
               <div className="d-flex justify-content-center gap-4 mb-5">
                 {/* Male */}
                 <div
-                  onClick={() => setSelectedVoice("male")}
+                  onClick={() => handleVoiceSelect("male")}
                   className={`d-flex flex-column align-items-center cursor-pointer ${
                     selectedVoice === "male"
-                      ? "border border-2 border-primary p-2 rounded"
+                      ? "border-2 border-primary p-2 rounded"
                       : ""
                   }`}
                 >
@@ -136,10 +96,10 @@ console.log("formData",response)
 
                 {/* Female */}
                 <div
-                  onClick={() => setSelectedVoice("female")}
+                  onClick={() => handleVoiceSelect("female")}
                   className={`d-flex flex-column align-items-center cursor-pointer ${
                     selectedVoice === "female"
-                      ? "border border-2 border-primary p-2 rounded"
+                      ? "border-2 border-primary p-2 rounded"
                       : ""
                   }`}
                 >
@@ -173,15 +133,14 @@ console.log("formData",response)
         <h3 className="text-white mb-4 text-center">Confirm Voice</h3>
 
         <p className="text-white text-center mb-4">
-          Continue with <b>{selectedVoice === "recorded" ? "Recorded" : selectedVoice}</b> voice
+          Continue with <b>{selectedVoice}</b> voice
         </p>
 
         <Button
           className="w-100 rounded-pill"
           onClick={handleConfirm}
-          disabled={loading}
         >
-          {loading ? "Processing..." : "Confirm"}
+          Confirm
         </Button>
       </Modal>
 
