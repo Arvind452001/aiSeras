@@ -331,6 +331,7 @@ import { uploadUserImage, createUserAvatar } from "../utils/mediaApi";
 import cartoonDummy from "../assets/images/select1.png";
 import cloneDummy from "../assets/images/select2.png";
 import imageDummy from "../assets/images/select3.png";
+import Header1 from "../components/Header1";
 
 // Avatar types + mapping to API style
 const avatarTypes = [
@@ -434,18 +435,20 @@ export default function CustomizeAvatar() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: 16,
+        padding: 10,
       }}
     >
+          <Header1/>
       {/* 🔹 SQUARE OUTER CONTAINER */}
       <div
         style={{
-          width: 520,
+          width: 390,
           height: 400,
           background: "rgba(0,0,0)",
           backdropFilter: "blur(12px)",
           borderRadius: 20,
-          padding: 26,
+          padding: 16,
+          marginTop:40,
           color: "#fff",
           boxShadow: "0 25px 70px rgba(0,0,0,0.5)",
           display: "flex",
@@ -453,7 +456,7 @@ export default function CustomizeAvatar() {
           justifyContent: "space-between",
         }}
       >
-        {/* Header */}
+    
         <div>
           {/* <h2 style={{ textAlign: "center", marginBottom: 3, color: "#fff" }}>
             Create Your Avatar
@@ -464,13 +467,13 @@ export default function CustomizeAvatar() {
         </div>
 
         {/* 🔹 Avatar Cards */}
-        <div style={{ display: "flex", justifyContent: "center", gap: 10 }}>
+        <div style={{ display: "flex", justifyContent: "center", gap:5 }}>
           {avatarTypes.map((item) => (
             <div
               key={item.key}
               onClick={() => handleAvatarClick(item.key)}
               style={{
-                width: 140,
+                width: 120,
                 cursor: loading ? "not-allowed" : "pointer",
                 textAlign: "center",
                 opacity: loading ? 0.6 : 1,
@@ -479,9 +482,9 @@ export default function CustomizeAvatar() {
               {/* Image box */}
               <div
                 style={{
-                  width: 140,
-                  height: 140,
-                  borderRadius: 14,
+                  width: 120,
+                  height: 120,
+                  borderRadius: 10,
                   overflow: "hidden",
                   border:
                     selectedType === item.key

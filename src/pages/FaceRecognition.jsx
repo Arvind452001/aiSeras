@@ -23,6 +23,7 @@ const FaceRecognition = () => {
   const [hasContinued, setHasContinued] = useState(false);
   const [isLive, setIsLive] = useState(true);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [error, setError] = useState("");
 
   const handleContinue = async () => {
     setUploading(true);
@@ -95,11 +96,13 @@ const FaceRecognition = () => {
   };
 
   const handleUpload = async () => {
+    if (error) return; // ⛔ safety guard
+
     setUploading(true);
     setApiResponse(null);
 
     if (isLive) {
-      // Use captureFace API (base64)
+      // CAMERA FLOW
       try {
         const canvas = canvasRef.current;
         const base64 = canvas.toDataURL("image/jpeg").split(",")[1];
@@ -113,10 +116,11 @@ const FaceRecognition = () => {
         setUploading(false);
       }
     } else {
-      // Use uploadFaceImage API (file)
+      // FILE UPLOAD FLOW
       try {
-        const file = fileInputRef.current.files[0];
+        const file = fileInputRef.current?.files[0];
         if (!file) throw new Error("No file selected");
+
         const data = await uploadFaceImage(file);
         setEmotionData(data);
         setApiResponse(data);
@@ -133,13 +137,37 @@ const FaceRecognition = () => {
     fileInputRef.current.click();
   };
 
+  const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    if (!file) return;
 
+    // ❌ no file selected
+    if (!file) {
+      setError("Please upload an image");
+      return; // ✅ IMPORTANT
+    }
+
+    // ❌ TYPE CHECK
+    if (!file.type.startsWith("image/")) {
+      setError("Only image files are allowed");
+      e.target.value = "";
+      return;
+    }
+
+    // ❌ SIZE CHECK
+    if (file.size > MAX_FILE_SIZE) {
+      setError("Image size must be less than 1 MB");
+      setUploadedImageURL(null);
+      e.target.value = "";
+      return;
+    }
+
+    // ✅ VALID FILE
+    setError("");
     setUploading(true);
     setApiResponse(null);
-    setIsLive(false); // Use upload API instead of live
+    setIsLive(false);
 
     try {
       const previewURL = URL.createObjectURL(file);
@@ -148,11 +176,13 @@ const FaceRecognition = () => {
       const data = await uploadFaceImage(file);
       setEmotionData(data);
       setApiResponse(data);
+
       setShowCanvas(false);
       setShowButtons(true);
     } catch (err) {
       console.error("Upload failed:", err);
       setApiResponse({ error: "Upload failed" });
+      setError("File upload failed");
     } finally {
       setUploading(false);
     }
@@ -202,68 +232,8 @@ const FaceRecognition = () => {
 
   return (
     <>
-    <Header1/>
-      {/* Header top Here */}
-      {/* <section className="header-section">
-        <div className="header-testting-wrap">
-          <header className="header">
-            <div className="container-fluid">
-              <div className="header-testting-inner d-flex align-items-center justify-content-between">
-            
-                <div className="header-item item-left">
-                  <div className="logo-menu">
-                    <Link to={"/landing"} className="logo d-xl-block">
-                      <img src={`${logo}`} alt="logo" style={{ width: 150 }} />
-                    </Link>
-                  </div>
-                </div>
-              
-                <div className="header-item">
-                  <div className="menu-overlay" />
-                  <nav className="menu">
-                  
-                    <div className="mobile-menu-head">
-                      <div className="go-back">
-                        <i className="material-symbols-outlined">
-                          arrow_back_ios
-                        </i>
-                      </div>
-                      <div className="current-menu-title" />
-                      <div className="mobile-menu-close">×</div>
-                    </div>
-                  </nav>
-                </div>
-                
-                <div className="header-item item-righ d-flex align-items-center justify-content-center">
-                  <div className="menu__components">
-                    <div
-                      className="d-flex gap-3 p-2"
-                      style={{ border: "1px solid #3E70A1", borderRadius: 10 }}
-                    >
-                      <a href="">
-                        <img
-                          src="https://www.bootdey.com/img/Content/avatar/avatar2.png"
-                          style={{ width: 40, borderRadius: "100%" }}
-                        />
-                      </a>
-                      <a href="">
-                        <span style={{ fontSize: 14 }}>Richard Jhons</span>
-                        <br />
-                        <span style={{ fontSize: 14 }}>
-                          <strong style={{ color: "#C30EFF" }}>Credit:</strong>{" "}
-                          $125
-                        </span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </header>
-        </div>
-      </section> */}
+      <Header1 />
 
-      {/* Header top End */}
       <style
         dangerouslySetInnerHTML={{
           __html:
@@ -364,6 +334,8 @@ const FaceRecognition = () => {
                   </div>
                 </div>
               </div>
+
+              {error && <p className="text-danger">{error}</p>}
               {/* <button
               id="capture"
               className="btn btn-custom mb-1 w-50"
@@ -373,12 +345,13 @@ const FaceRecognition = () => {
               Continue
             </button> */}
               <button
-                id="capture"
+                // disabled={!!error || uploading}
                 className="btn btn-custom mb-1 w-50"
                 onClick={() => setShowConfirm(true)}
               >
-                Continue
+                {uploading ? "Processing..." : "Continue"}
               </button>
+
               <center>
                 <center>
                   {hasContinued && (

@@ -193,7 +193,7 @@ export default function Chat() {
           clearInterval(ref.current);
           ref.current = null;
           setProcessing(false);
-          setTimeout(() => navigate("/history"), 300);
+          setTimeout(() => navigate("/"), 300);
         } else {
           // Optionally update status text
           const statusText = res?.status_text || "processing…";
@@ -232,50 +232,10 @@ export default function Chat() {
     <div className="chatjsx-override">
       {/* Header override (scoped to chat page, non-fixed to avoid affecting layout on other pages) */}
       <Header1 />
-      {/* <section className="header-section">
-        <div className="header-testting-wrap">
-          <header className="header">
-            <div className="container-fluid">
-              <div className="header-testting-inner d-flex align-items-center justify-content-between">
-                <div className="header-item item-left">
-                  <div className="logo-menu">
-                    <Link to="/" className="logo d-xl-block" aria-label="Go to home">
-                      <img
-                        src={logoSrc || "/placeholder.svg?height=40&width=150&query=brand%20logo"}
-                        style={{ width: 150 }}
-                        alt="Logo"
-                      />
-                    </Link>
-                  </div>
-                </div>
-                <div className="header-item item-righ d-flex align-items-center justify-content-center">
-                  <div className="menu__components">
-                    <div className="d-flex gap-3 p-2" style={{ border: "1px solid #3E70A1", borderRadius: 10 }}>
-                      <Link to="/profile" aria-label="Open profile">
-                        <img
-                          src={profileAvatarUrl || "/placeholder.svg"}
-                          style={{ width: 40, height: 40, borderRadius: "100%", objectFit: "cover" }}
-                          alt="Profile"
-                        />
-                      </Link>
-                      <Link to="/profile" className="text-white">
-                        <span style={{ fontSize: 14 }}>{userName}</span>
-                        <br />
-                        <span style={{ fontSize: 14 }}>
-                          <strong style={{ color: "#C30EFF" }}>Credit:</strong> ${credits}
-                        </span>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </header>
-        </div>
-      </section> */}
+     
 
       {/* Main section */}
-      <section className="pt-120 pb-120 mt-5 mb-5">
+      <section className="pt-30 pb-120  mb-5">
         <div className="container">
           <div className="row align-items-start justify-content-center gap-5">
             {/* Left: Avatar and input */}
@@ -381,7 +341,7 @@ export default function Chat() {
         </div>
 
         {/* Floating Mini Chat */}
-        <div className="chatbot-container" style={{ zIndex: 30 }}>
+        <divnnnn className="chatbot-container" style={{ zIndex: 30 }}>
           {/* Chat box */}
           <div
             className="chatbot-box"
@@ -460,7 +420,7 @@ export default function Chat() {
               <img src={`${chatbotAvatar}`} alt="Open Chat" />
             </button>
           )}
-        </div>
+        </divnnnn>
       </section>
 
       {processing && (
@@ -532,7 +492,7 @@ export default function Chat() {
           __html: `
 .chatjsx-override {
   background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-  color: #fff;
+ 
   min-height: 100vh;
   font-family: Arial, sans-serif;
 }
